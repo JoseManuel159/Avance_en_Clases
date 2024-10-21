@@ -1,25 +1,34 @@
-import { Injectable } from '@angular/core';
-import {ProductoRepor} from "../modelo/ProductoRepor";
+import {Injectable} from '@angular/core';
+import {GenericService} from "./generic.service";
+import {UnidadMedida} from "../modelo/UnidadMedida";
+import {BehaviorSubject, Subject} from "rxjs";
 import {HttpClient} from "@angular/common/http";
 import {environment} from "../../environments/environment.development";
-import {Categoria} from "../modelo/Categoria";
-import {BehaviorSubject} from "rxjs";
-import {Marca} from "../modelo/Marca";
-import {UnidadMedida} from "../modelo/UnidadMedida";
 
 @Injectable({
   providedIn: 'root'
 })
-export class UnidadmedidaService {
-  private url:string = `${environment.HOST}/unidadmedida`;
+export class UnidadmedidaService extends GenericService<UnidadMedida> {
+  private unidMediadSubject = new
+  BehaviorSubject<UnidadMedida[]>([]);
+  private messageChange: Subject<string> = new Subject<string>;
 
-  private unidadmedidaSubject = new BehaviorSubject<UnidadMedida[]>([]); // Comportamiento inicial
-  marcas$ = this.unidadmedidaSubject.asObservable(); // Observable para suscribirse
-  constructor(private http: HttpClient) { }
-
-  findAll():void{
-    this.http.get<UnidadMedida[]>(this.url).subscribe(data=>{
-      this.unidadmedidaSubject.next(data);
-    });
+  constructor(protected override http: HttpClient) {
+    super(http, `${environment.HOST}/unidadmedidas`);
   }
+
+
+  setUnidadMedidaChange(data: UnidadMedida[]) {
+    this.unidMediadSubject.next(data);
+  }
+
+  getUnidadMedidaChange() {
+    return this.unidMediadSubject.asObservable();
+  }
+
+  setMessageChange(data: string) {
+    this.messageChange.next(data);
+  }
+
+
 }
